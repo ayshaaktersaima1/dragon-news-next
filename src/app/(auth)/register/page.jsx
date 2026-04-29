@@ -1,4 +1,5 @@
 'use client'
+import { authClient } from '@/lib/auth-client';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -11,9 +12,27 @@ const RegisterPage = () => {
         formState: { errors },
     } = useForm()
 
-    const handleRegisterFunc = (data) => {
+
+
+    const handleRegisterFunc = async (data) => {
         const { name, email, photoUrl, password } = data;
-        console.log(name, email, photoUrl, password)
+        console.log(name, email, photoUrl, password);
+
+
+        const { data: res, error } = await authClient.signUp.email({
+            name: data.name,
+            email: data.email,
+            password: data.password,
+            image: data.photoUrl,
+            callbackURL: "/",
+        });
+        console.log(res, error)
+        if (error) {
+            alert(error.message)
+        }
+        if (res) {
+            alert('signup successful')
+        }
     }
 
     return (
@@ -36,7 +55,18 @@ const RegisterPage = () => {
                 </fieldset>
                 <fieldset className="fieldset">
                     <legend className="fieldset-legend">Password</legend>
-                    <input {...register("password", { required: 'password is required' })} type="password" className="input" placeholder="passwords" />
+                    <input
+                        {...register("password", {
+                            required: 'Password is required',
+                            minLength: {
+                                value: 8,
+                                message: 'Password must be at least 8 characters'
+                            }
+                        })}
+                        type="password"
+                        className="input"
+                        placeholder="Password"
+                    />
                 </fieldset>
                 <button className='btn bg-red-400'>Register</button>
             </form>

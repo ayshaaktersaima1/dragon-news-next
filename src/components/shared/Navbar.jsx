@@ -1,9 +1,20 @@
+'use client'
+
 import Image from 'next/image';
 import Link from 'next/link';
 import React from 'react';
 import avatar from '@/assets/user.png'
 import Navlink from './Navlink';
+import { authClient } from '@/lib/auth-client';
 const Navbar = () => {
+
+    const { data: session, isPending } = authClient.useSession();
+
+
+    const user = session?.user;
+
+
+
     return (
         <div className='flex justify-between my-5 items-center'>
             <div></div>
@@ -12,10 +23,22 @@ const Navbar = () => {
                 <li><Navlink className={'bg-blue-500'} href='/aboutus'>About</Navlink></li>
                 <li><Navlink href='/carrier'>Carrier</Navlink></li>
             </ul>
+
+
             <div className='flex gap-3 justify-center items-center'>
-                <Image src={avatar} alt='user' width={60} height={60}></Image>
-                <Link href='/login'>
-                    <button className='btn bg-amber-200'> Login</button></Link>
+                {
+                    isPending ? <><h2>Loading.....</h2></> :
+                        user ? <>  <h2>Hello {user?.name}</h2>
+                            <Image src={user?.image} alt='user' width={60} height={60}></Image>
+                            <Link href='/login'>
+                                <button onClick={async () => await authClient.signOut()} className='btn bg-amber-200'> Logout</button></Link></> :
+                            <>
+
+                                <Image src={avatar} alt='user' width={60} height={60}></Image>
+                                <Link href='/login'>
+                                    <button className='btn bg-amber-200'> Login</button></Link>
+                            </>
+                }
             </div>
         </div>
     );
